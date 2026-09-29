@@ -21,7 +21,7 @@
 - 使用 `gateway.qoder.com.cn` 的 PAT 鉴权接口
 - 使用 Qoder CN 的 COSY 签名、请求编码和 Agent Chat SSE 协议
 - 将 OpenAI/Pi 的 `developer` 消息角色转换为 Qoder 支持的 `system`
-- 增加 `/v1/models` 和 `/models` 模型列表接口
+- 动态读取 Qoder CN 当前账户的 `/v1/models` 和 `/models` 模型列表，并缓存 10 分钟
 - 修复 Linux 环境下的 Windows-only 依赖安装问题
 
 This repository is based on [bzym2/QoderGateway](https://github.com/bzym2/QoderGateway). The upstream MIT license is retained. The fork adds Qoder CN authentication and Agent Chat compatibility, OpenAI/Pi message-role conversion, model discovery endpoints, and Linux installation fixes.
@@ -31,6 +31,10 @@ This repository is based on [bzym2/QoderGateway](https://github.com/bzym2/QoderG
 在 Qoder 的 [Account Integrations](https://qoder.cn/account/integrations) 创建 PAT，并在管理控制台导入。PAT、管理员密码和 API Key 只应保存在本地或服务器环境变量中，不要提交到 Git 仓库。
 
 The core chat path is tested with Qoder CN PAT accounts. Token refresh behavior may vary as Qoder changes its regional authentication endpoints; re-import the PAT from the console if a stored session expires.
+
+模型列表从 Qoder CN 网关按账号动态读取，缓存有效期为 10 分钟。Qoder 网关暂时不可用时，服务会继续使用上次成功读取的列表；首次读取失败时回退到 `lite`。聊天请求既支持模型显示名称，也支持目录返回的内部模型 key。
+
+The model catalog is fetched per active Qoder account and cached for 10 minutes. If the catalog endpoint is temporarily unavailable, the last successful catalog is kept; a first-load failure falls back to `lite`. Chat requests accept both catalog display names and internal model keys.
 
 ## 安全发布 / Safe Publishing
 

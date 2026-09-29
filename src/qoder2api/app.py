@@ -15,6 +15,7 @@ from .bridge import complete_openai_response, stream_openai_response
 from .config import load_config, save_config
 from .database import get_db
 from .env import env_bool
+from .models import FALLBACK_CATALOG, get_model_catalog
 from .accounts import (
     db_load_accounts,
     db_get_settings,
@@ -385,10 +386,12 @@ async def list_models(authorization: str | None = Header(default=None)) -> dict[
         incoming_key = authorization[len("Bearer "):].strip() if authorization and authorization.startswith("Bearer ") else None
         if not incoming_key or incoming_key not in config.get("allowed_keys", []):
             raise HTTPException(status_code=401, detail="Invalid or missing API Key")
-    return {
-        "object": "list",
-        "data": [{"id": "lite", "object": "model", "owned_by": "qoder"}],
-    }
+    try:
+        sess = await get_session()
+        return (await get_model_catalog(sess)).payload()
+    except Exception as exc:
+        add_log(f"Model catalog unavailable, using fallback: {exc}", "WARNING")
+        return FALLBACK_CATALOG.payload()
 
 
 @app.post("/v1/chat/completions")
@@ -416,9 +419,10 @@ async def chat_completions(payload: dict[str, Any], authorization: str | None = 
     for attempt in range(max_retries):
         try:
             sess = await get_session()
+            catalog = await get_model_catalog(sess)
             add_log(f"Request routing via account: {sess.identity.name} ({sess.identity.uid})")
             if stream:
-                gen = stream_openai_response(payload, sess)
+                gen = stream_openai_response(payload, sess, catalog)
                 try:
                     first_item = await gen.__anext__()
                 except StopAsyncIteration:
@@ -438,7 +442,7 @@ async def chat_completions(payload: dict[str, Any], authorization: str | None = 
                 )
             else:
                 add_log(f"Generating full completion response (Attempt {attempt+1}/{max_retries})...")
-                resp = await complete_openai_response(payload, sess)
+                resp = await complete_openai_response(payload, sess, catalog)
                 add_log("Completion request finished successfully.")
                 return resp
         except Exception as exc:

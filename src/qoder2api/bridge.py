@@ -11,6 +11,7 @@ import httpx
 from . import encoding
 from .auth import SessionContext, bearer_headers
 from .env import httpx_client_kwargs
+from .models import ModelCatalog
 
 
 QODER_CHAT_URL = "https://gateway.qoder.com.cn/algo/api/v2/service/pro/sse/agent_chat_generation?FetchKeys=llm_model_result&AgentId=agent_common&Encode=1"
@@ -238,9 +239,14 @@ def build_qoder_messages(template_messages: list[dict[str, Any]], incoming: list
     return rebuilt
 
 
-def build_qoder_body(req: dict[str, Any], sess: SessionContext) -> tuple[dict[str, Any], str, bool]:
+def build_qoder_body(req: dict[str, Any], sess: SessionContext, catalog: ModelCatalog | None = None) -> tuple[dict[str, Any], str, str, bool]:
     """Build the Qoder CN agent-chat request body from an OpenAI request."""
-    model = req.get("model") or "lite"
+    requested_model = str(req.get("model") or "").strip()
+    model_info = catalog.resolve(requested_model) if catalog else None
+    if not requested_model and catalog:
+        model_info = catalog.default()
+    response_model = requested_model or (model_info.id if model_info else "lite")
+    routing_key = model_info.key if model_info else (requested_model or "lite")
     messages = req.get("messages") if isinstance(req.get("messages"), list) else []
     tools_enabled = bool(req.get("tools"))
     prompt = extract_latest_user_prompt(messages)
@@ -256,10 +262,14 @@ def build_qoder_body(req: dict[str, Any], sess: SessionContext) -> tuple[dict[st
     body["business"]["name"] = prompt[:30] if prompt else "hi"
     body["chat_context"]["text"]["text"] = prompt
     body["chat_context"]["extra"]["originalContent"]["text"] = prompt
-    body["model_config"]["key"] = model
-    body["model_config"]["is_reasoning"] = True
-    body["chat_context"]["extra"]["modelConfig"]["key"] = model
-    body["chat_context"]["extra"]["modelConfig"]["is_reasoning"] = True
+    body["model_config"]["key"] = routing_key
+    body["model_config"]["display_name"] = model_info.display_name if model_info else response_model
+    body["model_config"]["source"] = model_info.source if model_info else "system"
+    body["model_config"]["is_vl"] = model_info.is_vl if model_info else False
+    body["model_config"]["is_reasoning"] = model_info.is_reasoning if model_info else True
+    body["model_config"]["max_input_tokens"] = model_info.max_input_tokens if model_info else 180000
+    body["chat_context"]["extra"]["modelConfig"]["key"] = routing_key
+    body["chat_context"]["extra"]["modelConfig"]["is_reasoning"] = model_info.is_reasoning if model_info else True
     body["messages"] = build_qoder_messages(body["messages"], messages, prompt, tools_enabled)
     if tools_enabled:
         body["tools"] = copy.deepcopy(req["tools"])
@@ -267,7 +277,7 @@ def build_qoder_body(req: dict[str, Any], sess: SessionContext) -> tuple[dict[st
         body["tool_choice"] = copy.deepcopy(req["tool_choice"])
     if "parallel_tool_calls" in req:
         body["parallel_tool_calls"] = req["parallel_tool_calls"]
-    return body, model, tools_enabled
+    return body, response_model, routing_key, tools_enabled
 
 
 @dataclass
@@ -361,8 +371,8 @@ async def qoder_stream_lines(sess: SessionContext, body: dict[str, Any], model: 
                     yield line
 
 
-async def stream_openai_response(req: dict[str, Any], sess: SessionContext) -> AsyncIterator[str]:
-    body, model, tools_enabled = build_qoder_body(req, sess)
+async def stream_openai_response(req: dict[str, Any], sess: SessionContext, catalog: ModelCatalog | None = None) -> AsyncIterator[str]:
+    body, model, routing_key, tools_enabled = build_qoder_body(req, sess, catalog)
     chunk_id = "chatcmpl-" + uuid.uuid4().hex[:24]
     created = int(time.time())
     tool_calls = ToolCallAccumulator()
@@ -374,7 +384,7 @@ async def stream_openai_response(req: dict[str, Any], sess: SessionContext) -> A
     def event(payload: dict[str, Any]) -> str:
         return f"data: {json.dumps(payload, ensure_ascii=False, separators=(',', ':'))}\n\n"
 
-    async for line in qoder_stream_lines(sess, body, model):
+    async for line in qoder_stream_lines(sess, body, routing_key):
         if not line.startswith("data:"):
             continue
         delta = extract_delta(line[5:].strip())
@@ -435,13 +445,13 @@ async def stream_openai_response(req: dict[str, Any], sess: SessionContext) -> A
     yield "data: [DONE]\n\n"
 
 
-async def complete_openai_response(req: dict[str, Any], sess: SessionContext) -> dict[str, Any]:
-    body, model, tools_enabled = build_qoder_body(req, sess)
+async def complete_openai_response(req: dict[str, Any], sess: SessionContext, catalog: ModelCatalog | None = None) -> dict[str, Any]:
+    body, model, routing_key, tools_enabled = build_qoder_body(req, sess, catalog)
     completion_id = "chatcmpl-" + uuid.uuid4().hex[:24]
     created = int(time.time())
     full = []
     tool_calls = ToolCallAccumulator()
-    async for line in qoder_stream_lines(sess, body, model):
+    async for line in qoder_stream_lines(sess, body, routing_key):
         if not line.startswith("data:"):
             continue
         delta = extract_delta(line[5:].strip())
