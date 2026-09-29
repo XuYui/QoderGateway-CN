@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@theme {
+  --color-ink: #0c0a09;
+  --color-primary: #292524;
+  --color-body: #4e4e4e;
+  --color-hairline: #e7e5e4;
+  --color-hairline-strong: #d6d3d1;
+  --color-mint: #a7e5d3;
+  --color-peach: #f4c5a8;
+  --color-sky: #a8c8e8;
+  --color-lavender: #c8b8e0;
+  --color-canvas-soft: #fafafa;
+  --color-surface: #f9f9f9;
+  --color-surface-card: #ffffff;
+  --color-on-primary: #ffffff;
+  --color-on-surface-variant: #4e4543;
+  --color-toast-error: #ef4444;
+  --color-toast-success: #10b981;
+  --color-toast-info: #3b82f6;
+  --font-sans: 'Public Sans', sans-serif;
+}
+
+.font-display-lg { font-family: 'Waldenburg', serif; font-size: 36px; line-height: 1.17; letter-spacing: -0.36px; font-weight: 300; }
+.font-display-md { font-family: 'Waldenburg', serif; font-size: 32px; line-height: 1.13; letter-spacing: -0.32px; font-weight: 300; }
+.font-display-sm { font-family: 'Waldenburg', serif; font-size: 24px; line-height: 1.2; letter-spacing: 0; font-weight: 300; }
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.atmospheric-orb {
+  filter: blur(80px);
+  opacity: 0.6;
+  z-index: 0;
+  animation: orb-pulse 8s infinite alternate ease-in-out;
+}
+
+@keyframes orb-pulse {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(20px, -20px); }
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background-color: #0c0a09;
+  margin-left: 2px;
+  animation: soft-blink 1s infinite;
+  vertical-align: middle;
+}
+
+@keyframes soft-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e7e5e4; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #d6d3d1; }
+
+.custom-select-dropdown {
+  animation: dropdown-in 0.2s ease-out;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.custom-textarea {
+  field-sizing: content;
+  min-height: 44px;
+  max-height: 200px;
+}

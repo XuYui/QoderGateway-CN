@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+node_modules/
+frontend/node_modules/
+frontend/dist/
+src/qoder2api/static/
+*.db
+*.sqlite
+*.sqlite3
+.qoder/
+certs/
+*.pem
+
+# scripts 凭据与临时产物（含真实 token/密码，勿提交）
+scripts/qoder_credentials.json
+scripts/*_result.json
+scripts/new_device_result.json
+scripts/.last_profile
+scripts/*.png
+
+# qodergate-register 导出凭据
+accounts.json
+qodergate-register/accounts.json

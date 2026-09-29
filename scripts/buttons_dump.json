@@ -1,0 +1,106 @@
+{
+  "url": "https://qoder.com/device/selectAccounts?challenge=test-challenge&challenge_method=S256&nonce=00000000-0000-0000-0000-000000000000&machine_id=00000000-0000-0000-0000-000000000001&client_id=e883ade2-e6e3-4d6d-adf7-f92ceff5fdcb",
+  "count": 10,
+  "buttons": [
+    {
+      "tag": "button",
+      "text": "继 续",
+      "id": "",
+      "class": "ant-btn css-var- ant-btn-primary ant-btn-color-primary ant-btn-variant-solid",
+      "type": "button",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "",
+      "id": "",
+      "class": "iLw3h Zsbrc su0cs",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "QoderWork",
+      "id": "",
+      "class": "iLw3h Zsbrc rvBP5 ",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "QoderWake",
+      "id": "",
+      "class": "iLw3h Zsbrc rvBP5 ",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "能力市场",
+      "id": "",
+      "class": "iLw3h Zsbrc rvBP5 ",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "价格",
+      "id": "",
+      "class": "iLw3h Zsbrc rvBP5 ",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "前往中国站",
+      "id": "",
+      "class": "iLw3h Zsbrc ybZzr",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "下载",
+      "id": "",
+      "class": "iLw3h Zsbrc B5UbP qxD7v ",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "",
+      "id": "",
+      "class": "iLw3h Zsbrc su0cs",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    },
+    {
+      "tag": "a",
+      "text": "前往中国站",
+      "id": "",
+      "class": "iLw3h Zsbrc ybZzr",
+      "type": "",
+      "aria-label": "",
+      "displayed": true,
+      "rect": null
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "synthetic-qoder-message",
+  "from": {
+    "name": "",
+    "address": "no-reply@qoder.com"
+  },
+  "to": [
+    {
+      "name": "",
+      "address": "test@example.invalid"
+    }
+  ],
+  "subject": "Verify your Email with Qoder",
+  "text": "Verify your email\n\nYou're almost there! Please verify your email address to start using Qoder.\n\n000000\n\nThis code expires in 10 minutes.",
+  "html": [],
+  "verificationCode": "000000"
+}

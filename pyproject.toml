@@ -1,0 +1,27 @@
+[project]
+name = "qoder2api-python"
+version = "0.1.0"
+description = "Python WebUI and OpenAI-compatible bridge for Qoder"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "cryptography>=43.0.0",
+    "drissionpage>=4.1.1.4",
+    "fastapi>=0.115.0",
+    "httpx>=0.27.0",
+    "pypiwin32>=223; sys_platform == 'win32'",
+    "uvicorn[standard]>=0.30.6",
+]
+
+[project.scripts]
+qoder2api = "qoder2api.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qoder2api"]
